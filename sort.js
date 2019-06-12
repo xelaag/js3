@@ -23,6 +23,35 @@ fs.access(mainDir, err => {
   }
 });
 
+function copyFile (elementPathName, sortDir, element) {
+  fs.access(elementPathName, err => {
+    if (err) {
+      console.log('Такой директории еще нет - ' + elementPathName);
+      // иначе создаем директорию, а затем копируем в нее файл
+      fs.mkdir(elementPathName, err => {
+        if (err) {
+          console.log('Ошибка создания директории ' + err);
+          copyFile(elementPathName, sortDir, element);
+        } else {
+          console.log('Create dir: ' + elementPathName);
+          // если создана, то просто копируем в нее файл
+          fs.copyFile(path.join(sortDir, element), path.join(elementPathName, element), err => {
+            if (err) throw err;
+            console.log('File: ' + element + ' copied to ' + element[0].toUpperCase());
+          });
+        }
+      });
+    } else {
+      console.log('Такая директория уже создана - ' + elementPathName);
+      // если создана, то просто копируем в нее файл
+      fs.copyFile(path.join(sortDir, element), path.join(elementPathName, element), err => {
+        if (err) throw err;
+        console.log('File: ' + element + ' copied to ' + element[0].toUpperCase());
+      });
+    }
+  });
+}
+
 function readDir (sortDir) {
   // пробегаем по содержимому директории
   fs.readdir(sortDir, (err, files) => {
@@ -43,31 +72,7 @@ function readDir (sortDir) {
           // путь к директории для файла
           let elementPathName = path.join(mainDir, element[0].toUpperCase());
           // проверяем создана ли директория для этого файла
-          fs.access(elementPathName, err => {
-            if (err) {
-              console.log('Такой директории еще нет - ' + elementPathName);
-              // иначе создаем директорию, а затем копируем в нее файл
-              fs.mkdir(elementPathName, err => {
-                if (err) {
-                  console.log('Ошибка создания директории ' + err);
-                } else {
-                  console.log('Create dir: ' + elementPathName);
-                  // если создана, то просто копируем в нее файл
-                  fs.copyFile(path.join(sortDir, element), path.join(elementPathName, element), err => {
-                    if (err) throw err;
-                    console.log('File: ' + element + ' copied to ' + element[0].toUpperCase());
-                  });
-                }
-              });
-            } else {
-              console.log('Такая директория уже создана - ' + elementPathName);
-              // если создана, то просто копируем в нее файл
-              fs.copyFile(path.join(sortDir, element), path.join(elementPathName, element), err => {
-                if (err) throw err;
-                console.log('File: ' + element + ' copied to ' + element[0].toUpperCase());
-              });
-            }
-          });
+          copyFile(elementPathName, sortDir, element);
         }
         if (stats.isDirectory()) {
           console.log('"Это директория" - ' + element);
