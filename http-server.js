@@ -1,5 +1,5 @@
 const http = require('http');
-const dotenv = require('dotenv').;
+const dotenv = require('dotenv');
 const port = 3000;
 dotenv.config();
 const intervalTime = process.env.INTERVAL;
@@ -8,11 +8,11 @@ const sendTime = process.env.SENDTIME;
 const requestHandler = (request, response) => {
   if (request.url === '/time') {
     const interval = setInterval(() => {
-      run();
+      console.log(getUtc());
     }, intervalTime);
     setTimeout(() => {
       clearInterval(interval);
-      response.end('Current DateTime is: ' + new Date().toUTCString());
+      response.end('Current DateTime (UTC) is: ' + getUtc());
     }, sendTime);
   }
 };
@@ -27,11 +27,5 @@ server.listen(port, err => {
 });
 
 function getUtc () {
-  // return await for better async stack trace support in case of errors.
-  return new Promise(resolve => resolve(new Date().toUTCString()));
-}
-
-async function run () {
-  const r = await getUtc();
-  console.log(r);
+  return new Date().toUTCString();
 }
